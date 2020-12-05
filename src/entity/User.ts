@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToMany,
+} from "typeorm";
+import { AuthToken } from "./AuthToken";
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -10,4 +17,7 @@ export class User extends BaseEntity {
 
   @Column({ length: 50 })
   email: string;
+
+  @OneToMany(() => AuthToken, (authToken) => authToken.user)
+  authTokens: AuthToken[];
 }
