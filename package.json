@@ -1,0 +1,23 @@
+{
+   "name": "todos-api",
+   "version": "0.1.1",
+   "description": "todos api",
+   "main": "index.ts",
+   "repository": "git@github.com:Crystal-Mountain-Development/todos-api.git",
+   "author": "Stuard Gerardo Carrillo Gonzalez <sgcg5@outlook,com>",
+   "license": "MIT",
+   "dependencies": {
+      "pg": "^8.4.0",
+      "reflect-metadata": "^0.1.10",
+      "typeorm": "0.2.29",
+      "typescript": "^4.1.2"
+   },
+   "devDependencies": {
+      "@types/node": "^8.0.29",
+      "ts-node": "3.3.0",
+      "typescript": "3.3.3333"
+   },
+   "scripts": {
+      "start": "ts-node src/index.ts"
+   }
+}
