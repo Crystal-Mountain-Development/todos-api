@@ -18,6 +18,6 @@ export class AuthToken extends BaseEntity {
   @Column({ type: "timestamp" })
   expDate: Date;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.id, { nullable: false })
   user: User;
 }
