@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import "reflect-metadata";
 import { createConnection } from "typeorm";
 import { AuthToken } from "./entity/AuthToken";
+import { List } from "./entity/List";
+import { Todo } from "./entity/Todo";
 import { User } from "./entity/User";
 
 createConnection()
@@ -34,8 +36,20 @@ createConnection()
         authToken.id
     );
 
-    const tokens = await AuthToken.find({ relations: ["user"] });
+    const tokens = await AuthToken.find();
     console.log("Tokens: ", tokens);
+
+    const list = new List();
+    list.user = user;
+    list.title = "dummy";
+    list.isComplete = false;
+    await list.save();
+
+    const todos = new Todo();
+    todos.summary = "dummy with honey";
+    todos.isComplete = false;
+    todos.list = list;
+    await todos.save();
 
     console.log("Here you can setup and run express/koa/any other framework.");
   })

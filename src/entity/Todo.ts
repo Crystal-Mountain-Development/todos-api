@@ -12,7 +12,7 @@ export class Todo extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToOne(() => List, (list) => list.id)
+  @ManyToOne(() => List, (list) => list.id, { nullable: false })
   list: List;
 
   @Column()
