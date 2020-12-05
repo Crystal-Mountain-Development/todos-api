@@ -8,7 +8,7 @@ CREATE TABLE users (
     email varchar(20)
 );
 
-CREATE TABLE authtoken (
+CREATE TABLE authtokens (
     id uuid DEFAULT uuid_generate_v4 () PRIMARY KEY,
     user_id uuid,
     autokens varchar(20) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE lists (
     CONSTRAINT fk_users_lists FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-CREATE TABLE todo (
+CREATE TABLE todos (
     id uuid DEFAULT uuid_generate_v4 () PRIMARY KEY,
     list_id int,
     summary varchar NOT NULL,
