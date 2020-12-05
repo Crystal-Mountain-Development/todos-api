@@ -8,6 +8,7 @@
    "license": "MIT",
    "dependencies": {
       "@types/node": "^14.14.10",
+      "dayjs": "^1.9.7",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.10",
       "ts-node": "^9.1.0",

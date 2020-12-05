@@ -6,6 +6,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { List } from "./List";
+import { AuthToken } from "./AuthToken";
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -20,4 +21,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => List, (list) => list.user)
   list: List;
+
+  @OneToMany(() => AuthToken, (authToken) => authToken.user)
+  authTokens: AuthToken[];
 }
