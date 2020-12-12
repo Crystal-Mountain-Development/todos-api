@@ -11,6 +11,7 @@
       "apollo-server": "^2.19.0",
       "dayjs": "^1.9.7",
       "graphql": "^15.4.0",
+      "nodemon": "^2.0.6",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.10",
       "ts-node": "^9.1.0",
@@ -19,6 +20,6 @@
    },
    "devDependencies": {},
    "scripts": {
-      "start": "ts-node src/index.ts"
+      "start": "nodemon --exec \"ts-node\" src/index.ts"
    }
 }

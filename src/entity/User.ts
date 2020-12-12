@@ -20,7 +20,7 @@ export class User extends BaseEntity {
   email: string;
 
   @OneToMany(() => List, (list) => list.user)
-  list: List;
+  lists: List[];
 
   @OneToMany(() => AuthToken, (authToken) => authToken.user)
   authTokens: AuthToken[];
