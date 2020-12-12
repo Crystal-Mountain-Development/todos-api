@@ -1,47 +1,48 @@
 import { IResolvers } from "apollo-server";
 import { List } from "../entity/List";
-import { User } from "../entity/User";
+import { Todo } from "../entity/Todo";
 
-const userResolvers: IResolvers = {
+const listResolvers: IResolvers = {
   Query: {
     lists: () => List.find(),
     list: (_, { id }) => List.findOne(id),
   },
   Mutation: {
-    addUser: async (_, { insert }) => {
-      const user = new User();
-      user.email = insert.email;
-      user.username = insert.username;
+    addList: async (_, { insert }) => {
+      const list = new List();
+      list.title = insert.title;
+      list.isComplete = false;
+      list.userId = insert.userId;
 
-      await user.save();
+      await list.save();
 
-      return user;
+      return list;
     },
-    updateUser: async (_, { id, update }) => {
-      const user = await User.findOne(id);
+    updateList: async (_, { id, update }) => {
+      const list = await List.findOne(id);
 
-      if (!user) throw new Error("No User Found");
+      if (!list) throw new Error("No List Found");
 
-      user.email = update.email || user.email;
-      user.username = update.username || user.username;
+      list.title = update.title || list.title;
+      list.isComplete = update.isComplete || list.isComplete;
 
-      await user.save();
+      await list.save();
 
-      return user;
+      return list;
     },
-    deleteUser: async (_, { id }) => {
-      const user = await User.findOne(id);
+    deleteList: async (_, { id }) => {
+      const list = await List.findOne(id);
 
-      if (!user) throw new Error("No User Found");
+      if (!list) throw new Error("No List Found");
 
-      await user.remove();
+      await list.remove();
 
-      return { ...user, id };
+      return { ...list, id };
     },
   },
-  User: {
-    lists: (parent) => List.find({ where: { userId: parent.id } }),
+  List: {
+    todos: (parent) => Todo.find({ where: { listId: parent.id } }),
   },
 };
 
-export default userResolvers;
+export default listResolvers;
