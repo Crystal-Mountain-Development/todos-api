@@ -14,15 +14,18 @@ export class List extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.id, { nullable: false })
-  user: User;
-
   @Column()
   title: string;
 
   @Column()
   isComplete: boolean;
 
+  @Column()
+  userId: string;
+
+  @ManyToOne(() => User, (user) => user.id, { nullable: false })
+  user: User;
+
   @OneToMany(() => Todo, (todo) => todo.list)
-  todo: Todo;
+  todos: Todo[];
 }
