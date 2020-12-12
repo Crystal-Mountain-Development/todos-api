@@ -16,14 +16,29 @@ const typeDefs = gql`
     email: String!
   }
 
+type List{
+  title: String!
+  isComplete: Boolean!
+  id: Int!
+}
+
+  type Todo{
+    summary: String!
+    isComplete: Boolean!
+  }
+
   type Query {
     users: [User!]!
+    lists: [List!]!
+    todos: [Todo!]!
   }
 `;
 
 const resolvers = {
   Query: {
-    users: () => User.find()
+    users: () => User.find(),
+    lists: ()=> List.find(),
+    todos: ()=> Todo.find()
   },
 };
 
