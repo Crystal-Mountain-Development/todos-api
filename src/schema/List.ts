@@ -11,7 +11,6 @@ const ListSchema = gql`
 
   input ListInsertInput {
     title: String!
-    userId: String!
   }
 
   input ListUpdateInput {

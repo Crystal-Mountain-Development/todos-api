@@ -1,6 +1,8 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
 
+(globalThis as any).__IS_PRODUCTION__ = process.env.NODE_ENV === "production";
+
 import { ApolloServer, makeExecutableSchema } from "apollo-server";
 import QuerySchema from "./schema/Query";
 import MutationSchema from "./schema/Mutation";

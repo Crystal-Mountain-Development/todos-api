@@ -20,11 +20,11 @@ const UserSchema = gql`
 
   extend type Query {
     users: [User!]!
-    user(id: String!): User!
+    user: User!
   }
 
   extend type Mutation {
-    updateUser(id: String!, update: UserUpdateInput): User!
+    updateUser(update: UserUpdateInput): User!
   }
 `;
 

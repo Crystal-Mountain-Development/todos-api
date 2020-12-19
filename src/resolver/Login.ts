@@ -11,37 +11,42 @@ import { IContext } from "../context";
 
 const loginResolvers: IResolvers<any, IContext> = {
   Mutation: {
-    login: async (_, { email }) => {
+    sendAuthToken: async (_, { email }) => {
       const user = await User.findOne({ where: { email } });
 
       if (!user) throw new Error("Invalid Email");
 
       const token = generateToken();
 
-      await sgMail.send({
-        to: email,
-        from: "sgcg5@outlook.com",
-        subject: "Validation Code",
-        html: "Validation Code: " + token,
-      });
+      if ((globalThis as any).__IS_PRODUCTION__) {
+        await sgMail.send({
+          to: email,
+          from: "sgcg5@outlook.com",
+          subject: "Validation Code",
+          html: "Validation Code: " + token,
+        });
+      }
 
-      return "Email sent to " + email;
+      return {
+        message: "Authorization Token Sent",
+        token: (globalThis as any).__IS_PRODUCTION__ ? email : token,
+      };
     },
-    signin: async (_, { email, token }) => {
+    login: async (_, { email, token }) => {
       const user = await User.findOne({ where: { email } });
 
       if (!user) throw new Error("Invalid Email");
 
       const isValid = validateToken(token);
 
-      if (!isValid) throw new Error("Invalid Code");
+      if (!isValid) throw new Error("Invalid Token");
 
-      const authToken = jwt.sign(
-        { userId: user.id, email: user.email },
+      const authorization = jwt.sign(
+        { id: user.id, email: user.email },
         secret
       );
 
-      return authToken;
+      return { authorization };
     },
   },
 };
