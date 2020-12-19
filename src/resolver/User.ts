@@ -1,24 +1,15 @@
 import { IResolvers } from "apollo-server";
+import { IContext } from "../context";
 import { List } from "../entity/List";
 import { User } from "../entity/User";
 
-const userResolvers: IResolvers = {
+const userResolvers: IResolvers<any, IContext> = {
   Query: {
-    users: () => User.find(),
-    user: (_, { id }) => User.findOne(id),
+    user: (_, __, context) => User.findOne(context.user?.id),
   },
   Mutation: {
-    addUser: async (_, { insert }) => {
-      const user = new User();
-      user.email = insert.email;
-      user.username = insert.username;
-
-      await user.save();
-
-      return user;
-    },
-    updateUser: async (_, { id, update }) => {
-      const user = await User.findOne(id);
+    updateUser: async (_, { update }, context) => {
+      const user = await User.findOne(context.user?.id);
 
       if (!user) throw new Error("No User Found");
 

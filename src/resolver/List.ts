@@ -1,8 +1,9 @@
 import { IResolvers } from "apollo-server";
+import { IContext } from "../context";
 import { List } from "../entity/List";
 import { Todo } from "../entity/Todo";
 
-const listResolvers: IResolvers = {
+const listResolvers: IResolvers<any, IContext> = {
   Query: {
     lists: () => List.find(),
     list: (_, { id }) => List.findOne(id),

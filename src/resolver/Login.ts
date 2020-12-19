@@ -7,8 +7,9 @@ import {
   secret,
   validateToken,
 } from "../utils/authenticationToken";
+import { IContext } from "../context";
 
-const loginResolvers: IResolvers = {
+const loginResolvers: IResolvers<any, IContext> = {
   Mutation: {
     login: async (_, { email }) => {
       const user = await User.findOne({ where: { email } });

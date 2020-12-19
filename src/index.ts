@@ -14,6 +14,7 @@ import sgMail from "@sendgrid/mail";
 import dotenv from "dotenv";
 import LoginSchema from "./schema/Login";
 import loginResolvers from "./resolver/Login";
+import context from "./context";
 
 dotenv.config();
 
@@ -30,7 +31,7 @@ const server = new ApolloServer({
     ],
     resolvers: [userResolvers, todoResolvers, listResolvers, loginResolvers],
   }),
-  context: { redis: client },
+  context,
 });
 
 createConnection()

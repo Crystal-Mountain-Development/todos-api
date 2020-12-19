@@ -24,7 +24,6 @@ const UserSchema = gql`
   }
 
   extend type Mutation {
-    addUser(insert: UserInsertInput!): User!
     updateUser(id: String!, update: UserUpdateInput): User!
   }
 `;

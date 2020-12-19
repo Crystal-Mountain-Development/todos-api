@@ -1,7 +1,8 @@
 import { IResolvers } from "apollo-server";
+import { IContext } from "../context";
 import { Todo } from "../entity/Todo";
 
-const todoResolvers: IResolvers = {
+const todoResolvers: IResolvers<any, IContext> = {
   Query: {
     todos: () => Todo.find(),
     todo: (_, { id }) => Todo.findOne(id),
@@ -41,4 +42,4 @@ const todoResolvers: IResolvers = {
   },
 };
 
-export default todoResolvers
+export default todoResolvers;
