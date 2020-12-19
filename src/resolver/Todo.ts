@@ -1,11 +1,23 @@
 import { IResolvers } from "apollo-server";
 import { IContext } from "../context";
+import { List } from "../entity/List";
 import { Todo } from "../entity/Todo";
 
 const todoResolvers: IResolvers<any, IContext> = {
   Query: {
-    todos: () => Todo.find(),
-    todo: (_, { id }) => Todo.findOne(id),
+    todos: async (_, __, context) => {
+      const list = await List.findOne(context.user?.id);
+
+      return Todo.find({ where: { listId: list?.id } });
+    },
+    todo: async (_, { id }, context) => {
+      const todo = await Todo.findOne(id);
+      const list = await List.findOne(context.user?.id);
+
+      if (!todo || todo.listId !== list?.id) throw new Error("No ToDo Found");
+
+      return todo;
+    },
   },
   Mutation: {
     addTodo: async (_, { insert }) => {

@@ -5,8 +5,14 @@ import { Todo } from "../entity/Todo";
 
 const listResolvers: IResolvers<any, IContext> = {
   Query: {
-    lists: () => List.find(),
-    list: (_, { id }) => List.findOne(id),
+    lists: (_, __, { user }) => List.find({ where: { userId: user?.id } }),
+    list: async (_, { id }, { user }) => {
+      const list = await List.findOne(id);
+
+      if (!list || list.userId !== user?.id) throw new Error("No List Found");
+
+      return list;
+    },
   },
   Mutation: {
     addList: async (_, { insert }) => {
