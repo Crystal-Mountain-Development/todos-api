@@ -2,44 +2,45 @@ import { IResolvers } from "apollo-server";
 import jwt from "jsonwebtoken";
 import { User } from "../entity/User";
 import sgMail from "@sendgrid/mail";
-import { RedisClient } from "redis";
-import { promisify } from "util";
+import {
+  generateToken,
+  secret,
+  validateToken,
+} from "../utils/authenticationToken";
 
 const loginResolvers: IResolvers = {
   Mutation: {
-    login: async (_, { email }, { redis }: { redis: RedisClient }) => {
+    login: async (_, { email }) => {
       const user = await User.findOne({ where: { email } });
 
       if (!user) throw new Error("Invalid Email");
 
-      // GENERATE CODE
-      const code = "1234";
+      const token = generateToken();
 
-      // SAVE THE CODE IN REDIS
-      redis.set(user.id, code, console.log);
-
-      // SEND CODE FROM EMAIL
       await sgMail.send({
         to: email,
         from: "sgcg5@outlook.com",
         subject: "Validation Code",
-        html: "Validation Code: " + code,
+        html: "Validation Code: " + token,
       });
 
       return "Email sent to " + email;
     },
-    signin: async (_, { email, code }, { redis }: { redis: RedisClient }) => {
+    signin: async (_, { email, token }) => {
       const user = await User.findOne({ where: { email } });
 
       if (!user) throw new Error("Invalid Email");
 
-      const redisCode = await promisify(redis.get).bind(redis)(user.id);
+      const isValid = validateToken(token);
 
-      if (redisCode !== code) throw new Error("Invalid Code");
+      if (!isValid) throw new Error("Invalid Code");
 
-      const token = jwt.sign({ id: user.id, email: user.email }, code);
+      const authToken = jwt.sign(
+        { userId: user.id, email: user.email },
+        secret
+      );
 
-      return token;
+      return authToken;
     },
   },
 };
