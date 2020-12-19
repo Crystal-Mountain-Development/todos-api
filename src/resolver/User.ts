@@ -29,15 +29,6 @@ const userResolvers: IResolvers = {
 
       return user;
     },
-    deleteUser: async (_, { id }) => {
-      const user = await User.findOne(id);
-
-      if (!user) throw new Error("No User Found");
-
-      await user.remove();
-
-      return { ...user, id };
-    },
   },
   User: {
     lists: (parent) => List.find({ where: { userId: parent.id } }),

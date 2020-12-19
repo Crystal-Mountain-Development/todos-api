@@ -35,6 +35,10 @@ const listResolvers: IResolvers = {
 
       if (!list) throw new Error("No List Found");
 
+      const todo = await Todo.find({ where: { listId: id } });
+
+      await Todo.remove(todo);
+
       await list.remove();
 
       return { ...list, id };
