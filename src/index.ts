@@ -39,7 +39,7 @@ const server = new ApolloServer({
 createConnection()
   .then(async () => {
     server.listen().then(({ url }) => {
-      console.log(`🚀  Server ready at ${url}`);
+      console.info(`🚀  Server ready at ${url}`);
     });
   })
   .catch((error) => console.log(error));

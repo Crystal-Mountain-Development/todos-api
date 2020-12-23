@@ -1,4 +1,5 @@
 import { AuthenticationError, IResolvers } from "apollo-server";
+import { LOGIN_REQUIRED } from "../constants/errors";
 import { IContext } from "../context";
 import { List } from "../entity/List";
 import { User } from "../entity/User";
@@ -6,16 +7,16 @@ import { User } from "../entity/User";
 const userResolvers: IResolvers<any, IContext> = {
   Query: {
     user: (_, __, context) => {
-      if (!context.user) throw new AuthenticationError("You must login");
+      if (!context.user) throw new AuthenticationError(LOGIN_REQUIRED);
 
-      return User.findOne(context.user.id);
+      return User.findOneOrFail(context.user.id);
     },
   },
   Mutation: {
     updateUser: async (_, { update }, context) => {
-      if (!context.user) throw new AuthenticationError("You must login");
+      if (!context.user) throw new AuthenticationError(LOGIN_REQUIRED);
 
-      const user = await User.findOne(context.user?.id);
+      const user = await User.findOneOrFail(context.user?.id);
 
       if (!user) throw new Error("No User Found");
 
