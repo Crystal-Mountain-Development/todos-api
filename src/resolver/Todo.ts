@@ -1,26 +1,29 @@
-import { IResolvers } from "apollo-server";
+import { AuthenticationError, IResolvers } from "apollo-server";
 import { IContext } from "../context";
 import { List } from "../entity/List";
 import { Todo } from "../entity/Todo";
 
 const todoResolvers: IResolvers<any, IContext> = {
   Query: {
-    todos: async (_, __, context) => {
-      const list = await List.findOne(context.user?.id);
+    todos: async (_, __, { user }) => {
+      if (!user) throw new AuthenticationError("You must login");
 
-      return Todo.find({ where: { listId: list?.id } });
+      return Todo.find({ where: { list: { userId: user.id } } });
     },
-    todo: async (_, { id }, context) => {
-      const todo = await Todo.findOne(id);
-      const list = await List.findOne(context.user?.id);
+    todo: async (_, { id }, { user }) => {
+      if (!user) throw new AuthenticationError("You must login");
+      const todo = await Todo.findOne(id, {
+        where: { list: { userId: user?.id } },
+      });
 
-      if (!todo || todo.listId !== list?.id) throw new Error("No ToDo Found");
+      if (!todo) throw new Error("No ToDo Found");
 
       return todo;
     },
   },
   Mutation: {
-    addTodo: async (_, { insert }) => {
+    addTodo: async (_, { insert }, { user }) => {
+      if (!user) throw new AuthenticationError("You must login");
       const todo = new Todo();
       todo.summary = insert.summary;
       todo.isComplete = false;
@@ -30,20 +33,29 @@ const todoResolvers: IResolvers<any, IContext> = {
 
       return todo;
     },
-    updateTodo: async (_, { id, update }) => {
-      const todo = await Todo.findOne(id);
+    updateTodo: async (_, { id, update }, { user }) => {
+      if (!user) throw new AuthenticationError("You must login");
+
+      const todo = await Todo.createQueryBuilder("todo")
+        .innerJoin("todo.list", "list")
+        .where("list.userId = :userId AND todo.id = :todoId", { userId: user.id, todoId: id})
+        .getOne();
 
       if (!todo) throw new Error("No ToDo Found");
 
-      todo.summary = update.title || todo.summary;
-      todo.isComplete = update.isComplete || todo.isComplete;
+      todo.summary = update.summary ?? todo.summary;
+      console.log(update)
+      todo.isComplete = update.isComplete ?? todo.isComplete;
 
       await todo.save();
 
       return todo;
     },
-    deleteTodo: async (_, { id }) => {
-      const todo = await Todo.findOne(id);
+    deleteTodo: async (_, { id }, { user }) => {
+      if (!user) throw new AuthenticationError("You must login");
+      const todo = await Todo.findOne(id, {
+        where: { list: { userId: user?.id } },
+      });
 
       if (!todo) throw new Error("No ToDo Found");
 
