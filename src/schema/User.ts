@@ -19,7 +19,6 @@ const UserSchema = gql`
   }
 
   extend type Query {
-    users: [User!]!
     user: User!
   }
 
