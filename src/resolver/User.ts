@@ -1,24 +1,22 @@
-import { IResolvers } from "apollo-server";
+import { AuthenticationError, IResolvers } from "apollo-server";
+import { LOGIN_REQUIRED } from "../constants/errors";
+import { IContext } from "../context";
 import { List } from "../entity/List";
 import { User } from "../entity/User";
 
-const userResolvers: IResolvers = {
+const userResolvers: IResolvers<any, IContext> = {
   Query: {
-    users: () => User.find(),
-    user: (_, { id }) => User.findOne(id),
+    user: (_, __, context) => {
+      if (!context.user) throw new AuthenticationError(LOGIN_REQUIRED);
+
+      return User.findOneOrFail(context.user.id);
+    },
   },
   Mutation: {
-    addUser: async (_, { insert }) => {
-      const user = new User();
-      user.email = insert.email;
-      user.username = insert.username;
+    updateUser: async (_, { update }, context) => {
+      if (!context.user) throw new AuthenticationError(LOGIN_REQUIRED);
 
-      await user.save();
-
-      return user;
-    },
-    updateUser: async (_, { id, update }) => {
-      const user = await User.findOne(id);
+      const user = await User.findOneOrFail(context.user?.id);
 
       if (!user) throw new Error("No User Found");
 
@@ -28,15 +26,6 @@ const userResolvers: IResolvers = {
       await user.save();
 
       return user;
-    },
-    deleteUser: async (_, { id }) => {
-      const user = await User.findOne(id);
-
-      if (!user) throw new Error("No User Found");
-
-      await user.remove();
-
-      return { ...user, id };
     },
   },
   User: {
