@@ -8,38 +8,42 @@ import {
   validateToken,
 } from "../utils/authenticationToken";
 import { IContext } from "../context";
+import { INVALID_EMAIL, INVALID_TOKEN } from "../constants/errors";
+import { EMAIL, AUTHORIZATION_TOKEN_MESSAGE, VALIDATION_CODE_EMAIL } from "../constants/email";
 
 const loginResolvers: IResolvers<any, IContext> = {
   Mutation: {
     sendAuthToken: async (_, { email }) => {
       const user = await User.findOne({ where: { email } });
 
-      if (!user) throw new Error("Invalid Email");
+      if (!user) throw new Error(INVALID_EMAIL);
 
       const token = generateToken();
 
       if ((globalThis as any).__IS_PRODUCTION__) {
         await sgMail.send({
           to: email,
-          from: "sgcg5@outlook.com",
-          subject: "Validation Code",
+          from: EMAIL,
+          subject: VALIDATION_CODE_EMAIL,
           html: "Validation Code: " + token,
         });
       }
 
       return {
-        message: "Authorization Token Sent",
+        message: AUTHORIZATION_TOKEN_MESSAGE,
         token: (globalThis as any).__IS_PRODUCTION__ ? email : token,
       };
     },
     login: async (_, { email, token }) => {
       const user = await User.findOne({ where: { email } });
 
-      if (!user) throw new Error("Invalid Email");
+      if (!user) throw new Error(INVALID_EMAIL);
 
       const isValid = validateToken(token);
 
-      if (!isValid) throw new Error("Invalid Token");
+      if (!isValid) throw new Error(INVALID_TOKEN);
+
+      if(!user.isValidated)throw new Error(INVALID_EMAIL);
 
       const authorization = jwt.sign(
         { id: user.id, email: user.email },

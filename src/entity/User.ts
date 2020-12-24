@@ -20,4 +20,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => List, (list) => list.user)
   lists: List[];
+
+  @Column("boolean", { default: false })
+  isValidated: boolean;
 }

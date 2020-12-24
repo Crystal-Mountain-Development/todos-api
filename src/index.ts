@@ -17,6 +17,8 @@ import dotenv from "dotenv";
 import LoginSchema from "./schema/Login";
 import loginResolvers from "./resolver/Login";
 import context from "./context";
+import signinResolvers from "./resolver/Signin";
+import signinSchema from "./schema/Signin";
 
 dotenv.config();
 
@@ -30,8 +32,9 @@ const server = new ApolloServer({
       ListSchema,
       UserSchema,
       LoginSchema,
+      signinSchema,
     ],
-    resolvers: [userResolvers, todoResolvers, listResolvers, loginResolvers],
+    resolvers: [userResolvers, todoResolvers, listResolvers, loginResolvers, signinResolvers],
   }),
   context,
 });
