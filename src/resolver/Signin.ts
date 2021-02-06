@@ -8,15 +8,27 @@ import {
 import { IContext } from "../context";
 import sgMail from "@sendgrid/mail";
 import jwt from "jsonwebtoken";
-import { ALREADY_ACCOUNT, EMAIL_VALIDATE, INVALID_EMAIL, INVALID_TOKEN } from "../constants/errors";
-import { EMAIL, AUTHORIZATION_TOKEN_MESSAGE, VALIDATION_CODE_EMAIL } from "../constants/email";
+import {
+  ALREADY_ACCOUNT,
+  ALREADY_NAME,
+  EMAIL_VALIDATE,
+  INVALID_EMAIL,
+  INVALID_TOKEN,
+} from "../constants/errors";
+import {
+  EMAIL,
+  AUTHORIZATION_TOKEN_MESSAGE,
+  VALIDATION_CODE_EMAIL,
+} from "../constants/email";
 
 const signinResolvers: IResolvers<any, IContext> = {
   Mutation: {
     signin: async (_, { email, username }) => {
       const user = await User.findOne({ where: { email } });
+      const name = await User.findOne({ where: { username } });
 
       if (user) throw new Error(ALREADY_ACCOUNT);
+      if (name) throw new Error(ALREADY_NAME);
 
       const newUser = new User();
       newUser.email = email;
