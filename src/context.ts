@@ -9,20 +9,22 @@ export interface UserContext {
 
 export interface IContext {
   user?: UserContext;
+  req: Request;
+  res: Response;
 }
 
-function context({ req }: { req: Request; res: Response }): IContext {
-  const authToken = req.headers.authorization ?? "";
+function context({ req, res }: { req: Request; res: Response }): IContext {
+  const authToken = req.cookies["token"] || req.headers["authorization"];
 
   try {
     const user = jwt.verify(authToken, secret) as UserContext;
 
-    if (user) return { user };
+    if (user) return { user, req, res };
   } catch (error) {
-    return {};
+    return { req, res };
   }
 
-  return {};
+  return { req, res };
 }
 
 export default context;
