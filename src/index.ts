@@ -70,7 +70,7 @@ createConnection()
     server.setGraphQLPath("/");
 
     app.listen({ port: 4000 }, () => {
-      console.info(`🚀  Server ready at ${4000}${server.graphqlPath}`);
+      console.info(`🚀  Server ready at  http://localhost:${4000}${server.graphqlPath}`);
     });
   })
   .catch(console.log);
