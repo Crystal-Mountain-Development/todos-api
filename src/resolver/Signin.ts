@@ -1,4 +1,5 @@
 import { IResolvers } from "apollo-server";
+import { OAuth2Client } from "google-auth-library";
 import { User } from "../entity/User";
 import {
   generateToken,
@@ -10,7 +11,6 @@ import sgMail from "@sendgrid/mail";
 import jwt from "jsonwebtoken";
 import {
   ALREADY_ACCOUNT,
-  ALREADY_NAME,
   EMAIL_VALIDATE,
   INVALID_EMAIL,
   INVALID_TOKEN,
@@ -20,15 +20,16 @@ import {
   AUTHORIZATION_TOKEN_MESSAGE,
   VALIDATION_CODE_EMAIL,
 } from "../constants/email";
+import ms from "ms";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_AUTH_PUBLIC);
 
 const signinResolvers: IResolvers<any, IContext> = {
   Mutation: {
     signin: async (_, { email, username }) => {
       const user = await User.findOne({ where: { email } });
-      const name = await User.findOne({ where: { username } });
 
       if (user) throw new Error(ALREADY_ACCOUNT);
-      if (name) throw new Error(ALREADY_NAME);
 
       const newUser = new User();
       newUser.email = email;
@@ -50,6 +51,45 @@ const signinResolvers: IResolvers<any, IContext> = {
         message: AUTHORIZATION_TOKEN_MESSAGE,
         token: (globalThis as any).__IS_PRODUCTION__ ? email : token,
       };
+    },
+
+    googleEmailValidation: async (_, { token }, context) => {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_AUTH_PUBLIC,
+      });
+      const payload = ticket.getPayload();
+
+      if (!payload) throw new Error(INVALID_TOKEN);
+
+      const { name, email } = payload;
+
+      if (!name || !email) throw new Error(INVALID_TOKEN);
+
+      let user = await User.findOne({
+        where: [{ email }],
+      });
+
+      if (!user) {
+        user = new User();
+        user.email = email;
+        user.username = name;
+        user.isValidated = true;
+
+        await user.save();
+      }
+
+      const authorization = jwt.sign({ id: user.id, email: email }, secret, {
+        expiresIn: "1y",
+      });
+
+      context.res.cookie("token", authorization, {
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: ms("1y"),
+      });
+
+      return { authorization };
     },
 
     emailValidation: async (_, { email, token }) => {

@@ -1,5 +1,6 @@
 import { IResolvers } from "apollo-server";
 import jwt from "jsonwebtoken";
+import ms from "ms";
 import { User } from "../entity/User";
 import sgMail from "@sendgrid/mail";
 import {
@@ -9,7 +10,11 @@ import {
 } from "../utils/authenticationToken";
 import { IContext } from "../context";
 import { INVALID_EMAIL, INVALID_TOKEN } from "../constants/errors";
-import { EMAIL, AUTHORIZATION_TOKEN_MESSAGE, VALIDATION_CODE_EMAIL } from "../constants/email";
+import {
+  EMAIL,
+  AUTHORIZATION_TOKEN_MESSAGE,
+  VALIDATION_CODE_EMAIL,
+} from "../constants/email";
 
 const loginResolvers: IResolvers<any, IContext> = {
   Mutation: {
@@ -34,7 +39,7 @@ const loginResolvers: IResolvers<any, IContext> = {
         token: (globalThis as any).__IS_PRODUCTION__ ? email : token,
       };
     },
-    login: async (_, { email, token }) => {
+    login: async (_, { email, token }, context) => {
       const user = await User.findOne({ where: { email } });
 
       if (!user) throw new Error(INVALID_EMAIL);
@@ -43,12 +48,19 @@ const loginResolvers: IResolvers<any, IContext> = {
 
       if (!isValid) throw new Error(INVALID_TOKEN);
 
-      if(!user.isValidated)throw new Error(INVALID_EMAIL);
+      if (!user.isValidated) throw new Error(INVALID_EMAIL);
 
       const authorization = jwt.sign(
         { id: user.id, email: user.email },
-        secret
+        secret,
+        { expiresIn: "1y" }
       );
+
+      context.res.cookie("token", authorization, {
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: ms("1y"),
+      });
 
       return { authorization };
     },

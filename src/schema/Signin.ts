@@ -12,6 +12,7 @@ const signinSchema = gql`
 
   extend type Mutation {
     signin(email: String!, username: String!): SigninMessage
+    googleEmailValidation(token: String!): SigninToken
     emailValidation(email: String!, token: String!): SigninToken
     resendEmailValidation(email: String!): SigninMessage
   }

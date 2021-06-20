@@ -9,9 +9,11 @@ export const secret = (globalThis as any).__IS_PRODUCTION__
   : "DEVELOP123";
 
 export function generateToken() {
+  
   return totp.generate(secret);
 }
 
 export function validateToken(token: string) {
   return totp.verify({ token, secret });
 }
+
